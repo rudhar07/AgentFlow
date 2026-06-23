@@ -89,12 +89,30 @@ _DETECT_JS = r"""
     nameEl = [...document.querySelectorAll('form input')].find((el) => isVisible(el) && textLike(el)) || null;
   }
 
+  // 3) Submit button: walk up from the Description field and take the last
+  // visible Submit/Save button in the nearest enclosing group. This works
+  // whether or not the fields live inside a real <form> element.
+  let submitEl = null;
+  const wantsBtn = (b) =>
+    isVisible(b) && /submit|save/i.test((b.innerText || b.value || '').trim());
+  let node = descEl || nameEl;
+  while (node && node !== document.body && !submitEl) {
+    const btns = [...node.querySelectorAll('button, input[type="submit"]')].filter(wantsBtn);
+    if (btns.length) submitEl = btns[btns.length - 1]; // Submit usually follows Reset
+    node = node.parentElement;
+  }
+  if (!submitEl) {
+    submitEl = [...document.querySelectorAll('button, input[type="submit"]')].filter(wantsBtn)[0] || null;
+  }
+
   if (nameEl) nameEl.setAttribute('data-agentflow', 'name');
   if (descEl) descEl.setAttribute('data-agentflow', 'desc');
+  if (submitEl) submitEl.setAttribute('data-agentflow', 'submit');
 
   return {
     name: nameEl ? meta(nameEl) : null,
     desc: descEl ? meta(descEl) : null,
+    submit: submitEl ? { text: (submitEl.innerText || submitEl.value || '').trim().slice(0, 40) } : null,
   };
 }
 """
@@ -103,10 +121,17 @@ _DETECT_JS = r"""
 class DetectionResult:
     """The outcome of a detection pass: which frame, and field metadata."""
 
-    def __init__(self, frame: Frame, name: dict | None, desc: dict | None) -> None:
+    def __init__(
+        self,
+        frame: Frame,
+        name: dict | None,
+        desc: dict | None,
+        submit: dict | None = None,
+    ) -> None:
         self.frame = frame
         self.name = name
         self.desc = desc
+        self.submit = submit
 
     def __bool__(self) -> bool:
         return self.name is not None or self.desc is not None
@@ -129,10 +154,16 @@ class ElementDetector:
                 log.debug("Detection failed in frame %s: %s", frame.url, exc)
                 continue
             if result and (result.get("name") or result.get("desc")):
-                name, desc = result.get("name"), result.get("desc")
+                name, desc, submit = (
+                    result.get("name"),
+                    result.get("desc"),
+                    result.get("submit"),
+                )
                 log.info("Detected Name/Title field: %s", _describe(name))
                 log.info("Detected Description field: %s", _describe(desc))
-                return DetectionResult(frame, name, desc)
+                if submit:
+                    log.info("Detected Submit button: %r", submit.get("text"))
+                return DetectionResult(frame, name, desc, submit)
         log.warning("No form fields detected on the page.")
         return None
 

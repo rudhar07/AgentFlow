@@ -146,15 +146,13 @@ class DeterministicAgent:
         return ok
 
     def _submit(self, detection: DetectionResult) -> bool:
-        """Click the form's submit button via its centre coordinates."""
-        frame = detection.frame
-        button = frame.locator(
-            "form button[type=submit], "
-            "form button:has-text('Submit'), "
-            "form button:has-text('Save')"
-        ).first
+        """Click the Submit button the detector tagged next to the fields."""
+        if not detection.submit:
+            log.warning("No Submit button was detected; skipping submit.")
+            return False
+        button = detection.frame.locator('[data-agentflow="submit"]').first
         try:
-            button.scroll_into_view_if_needed()
+            button.scroll_into_view_if_needed(timeout=5000)
             box = button.bounding_box()
             if not box:
                 log.warning("Submit button not measurable; skipping submit.")
