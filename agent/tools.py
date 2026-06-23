@@ -1,7 +1,7 @@
 """The AgentFlow tool belt.
 
 A thin, composable wrapper around Playwright that exposes exactly the
-capabilities the assignment requires, each as a single method:
+browser capabilities the agent needs, each as a single method:
 
     * open_browser()          - launch a browser instance
     * navigate_to_url(url)    - point the browser at a URL

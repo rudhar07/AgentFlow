@@ -32,9 +32,9 @@ Navigate to <https://ui.shadcn.com/docs/forms/react-hook-form>, find the form's
 
 ---
 
-## Required tools — and where they live
+## Core tools — and where they live
 
-Every capability the assignment asks for is a single method on
+Every required browser capability is a single method on
 [`agent/tools.py`](agent/tools.py) → `BrowserTools`:
 
 | Required tool | Method |

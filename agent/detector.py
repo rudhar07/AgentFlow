@@ -11,7 +11,7 @@ the page's structure the way a person would:
    form is what stops the agent from grabbing the docs site's search box.
 3. Tag the two chosen elements with a ``data-agentflow`` attribute so Playwright
    can re-locate them, and report rich metadata (label, placeholder, name, id)
-   about each — useful for logging and for the viva demo.
+   about each — useful for logging and debugging.
 
 The detection JS runs in every frame, so it works whether the form is rendered
 inline or inside a component-preview ``<iframe>``.

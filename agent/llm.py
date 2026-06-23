@@ -1,7 +1,7 @@
 """The LLM-vision agent (optional).
 
 This brain implements the "AI-driven browser control" idea literally: Claude is
-given a screenshot of the page and a set of tools matching the assignment's
+given a screenshot of the page and a set of tools matching the agent's
 contract, and it decides — turn by turn — where to click, what to type, and
 when the task is done. The harness executes each requested tool, captures a
 fresh screenshot, and feeds it back as the tool result, closing the
@@ -26,7 +26,7 @@ from .tools import BrowserTools
 
 log = get_logger("llm")
 
-# Tool definitions handed to Claude. Names mirror the assignment's contract.
+# Tool definitions handed to Claude. Names mirror the BrowserTools methods.
 _TOOLS = [
     {
         "name": "click_on_screen",

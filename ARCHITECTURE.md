@@ -7,15 +7,15 @@ the agent's workflow.
 
 ## 1. Design goals
 
-The assignment rewards four things, and the architecture is shaped around them:
+The architecture is shaped around four goals:
 
-1. **Functionality (40%)** — the task must reliably complete on a live demo.
-2. **Code quality (25%)** — small, single-responsibility modules.
-3. **Agent intelligence (20%)** — adapt to the page instead of hard-coding.
-4. **Error handling (10%)** — fail loudly and safely, never silently.
+1. **Functionality** — reliably complete the target task end-to-end.
+2. **Code quality** — small, single-responsibility modules.
+3. **Agent intelligence** — adapt to the page instead of hard-coding.
+4. **Error handling** — fail loudly and safely, never silently.
 
-The key tension is between **reliability** (needed for the demo) and
-**intelligence** (needed for the rubric). AgentFlow resolves it by separating
+The key tension is between **reliability** (a demo that always works) and
+**intelligence** (genuinely adaptive behaviour). AgentFlow resolves it by separating
 *what the agent can do* (a fixed tool belt) from *how it decides* (two
 swappable brains), so we get a rock-solid default path **and** a genuinely
 AI-driven one.
@@ -170,10 +170,10 @@ Design choices worth noting:
 
 ## 7. Trade-offs and what I'd add next
 
-- **Why a deterministic default?** A live viva demo must not depend on network
+- **Why a deterministic default?** A live demo must not depend on network
   latency to an LLM or on the model clicking the right pixel. The deterministic
   brain is fast and repeatable; the LLM brain showcases autonomy.
-- **Coordinate clicking vs. selectors.** Coordinates honour the assignment's
+- **Coordinate clicking vs. selectors.** Coordinates honour the `click_on_screen(x, y)`
   contract and make the LLM and deterministic paths symmetric, at the cost of
   needing a visible, scrolled-into-view element. The detector handles that.
 - **Next steps:** a retry/back-off wrapper around flaky actions, an

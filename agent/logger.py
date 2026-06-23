@@ -2,7 +2,7 @@
 
 Every tool call and agent decision is logged to both the console and a rotating
 file under ``logs/`` so a run can be replayed and audited after the fact — this
-is the "comprehensive logging" the assignment asks for.
+gives comprehensive, auditable logging of every run.
 """
 
 from __future__ import annotations
