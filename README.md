@@ -4,6 +4,11 @@ An intelligent browser-automation agent built with **Python + Playwright**. It
 navigates to a target page, **autonomously identifies the form fields**, and
 fills them in — a mini version of tools like [Browser Use](https://github.com/browser-use/browser-use).
 
+**🚀 Live demo:** **<https://rudhar07-agentflow.hf.space>** — run the agent from your
+browser (deterministic mode needs no API key). _Hosted on a free Hugging Face
+Space, which sleeps when idle, so the first load after a gap cold-starts in
+~30–60 s._
+
 It ships with **two interchangeable "brains"**:
 
 | Mode | How it decides what to do | Needs an API key? |
