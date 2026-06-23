@@ -70,10 +70,17 @@ class BrowserTools:
                 "use chromium, firefox, or webkit."
             ) from exc
 
-        self._browser = engine.launch(
-            headless=self.config.headless,
-            slow_mo=self.config.slow_mo,
-        )
+        launch_kwargs: dict = {
+            "headless": self.config.headless,
+            "slow_mo": self.config.slow_mo,
+        }
+        # In a container, Chromium needs these to launch reliably: --no-sandbox
+        # (sandbox can't initialise without extra privileges) and
+        # --disable-dev-shm-usage (the default /dev/shm is too small). Harmless
+        # locally. Only applies to Chromium.
+        if self.config.browser == "chromium":
+            launch_kwargs["args"] = ["--no-sandbox", "--disable-dev-shm-usage"]
+        self._browser = engine.launch(**launch_kwargs)
         self._context = self._browser.new_context(
             viewport={
                 "width": self.config.viewport_width,
