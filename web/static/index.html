@@ -1,0 +1,254 @@
+<title>AgentFlow — Website Automation Agent</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --bg: #0f1420;
+    --panel: #171d2b;
+    --panel-2: #1f2738;
+    --border: #2a3346;
+    --text: #e6ebf5;
+    --muted: #8b97ad;
+    --accent: #6ea8fe;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+  }
+  header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  header h1 { font-size: 18px; margin: 0; letter-spacing: 0.2px; }
+  header .tag { color: var(--muted); font-size: 13px; }
+  .pill {
+    margin-left: auto;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--muted);
+  }
+  .pill.live { color: var(--bg); background: var(--ok); border-color: var(--ok); }
+  main { padding: 20px 24px; max-width: 1200px; margin: 0 auto; }
+  .controls {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    align-items: end;
+  }
+  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; }
+  input[type="text"], select {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 9px 10px;
+    font-size: 14px;
+  }
+  .check { display: flex; align-items: center; gap: 8px; padding-bottom: 9px; }
+  .check input { width: 16px; height: 16px; }
+  button {
+    background: var(--accent);
+    color: #0a0f1a;
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .grid {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card h2 {
+    font-size: 13px;
+    margin: 0;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  #log {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    font-size: 12.5px;
+    padding: 12px 14px;
+    height: 460px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  #log .l { color: var(--text); }
+  #log .l.tool { color: var(--accent); }
+  #log .l.verify { color: var(--ok); }
+  #log .l.warn { color: var(--warn); }
+  .shotwrap { padding: 12px 14px; }
+  #shot {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    display: block;
+    min-height: 200px;
+    object-fit: contain;
+  }
+  #shotname { font-size: 12px; color: var(--muted); margin: 8px 2px 4px; }
+  #thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+  #thumbs img {
+    width: 76px; height: 48px; object-fit: cover;
+    border-radius: 6px; border: 1px solid var(--border); cursor: pointer; opacity: 0.7;
+  }
+  #thumbs img:hover { opacity: 1; }
+  .err { color: #fca5a5; font-size: 13px; margin-top: 10px; min-height: 18px; }
+</style>
+
+<header>
+  <h1>🤖 AgentFlow</h1>
+  <span class="tag">Website Automation Agent · Playwright</span>
+  <span id="status" class="pill">idle</span>
+</header>
+
+<main>
+  <div class="controls">
+    <div>
+      <label for="mode">Agent brain</label>
+      <select id="mode">
+        <option value="deterministic">Deterministic (no API key)</option>
+        <option value="llm">LLM vision (Claude)</option>
+      </select>
+    </div>
+    <div>
+      <label for="name">Name / Title value</label>
+      <input id="name" type="text" placeholder="AgentFlow Bot" />
+    </div>
+    <div>
+      <label for="desc">Description value</label>
+      <input id="desc" type="text" placeholder="(uses a sensible default)" />
+    </div>
+    <div class="check">
+      <input id="submit" type="checkbox" />
+      <label for="submit" style="margin:0">Click Submit</label>
+    </div>
+    <div>
+      <button id="run">Run agent ▶</button>
+    </div>
+  </div>
+  <div class="err" id="err"></div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Live agent log</h2>
+      <div id="log"></div>
+    </div>
+    <div class="card">
+      <h2>Screenshots</h2>
+      <div class="shotwrap">
+        <img id="shot" alt="The agent's screenshots will appear here as it runs." />
+        <div id="shotname"></div>
+        <div id="thumbs"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const logEl = $("log"), shotEl = $("shot"), shotName = $("shotname"),
+        thumbs = $("thumbs"), statusEl = $("status"), runBtn = $("run"), errEl = $("err");
+  let es = null;
+
+  function addLog(line) {
+    const div = document.createElement("div");
+    div.className = "l";
+    if (line.includes("TOOL ")) div.classList.add("tool");
+    else if (line.includes("Verify") || line.includes(" OK ")) div.classList.add("verify");
+    else if (line.includes("WARNING") || line.includes("MISMATCH")) div.classList.add("warn");
+    div.textContent = line;
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function showShot(name, b64) {
+    const src = "data:image/png;base64," + b64;
+    shotEl.src = src;
+    shotName.textContent = name;
+    const t = document.createElement("img");
+    t.src = src; t.title = name;
+    t.onclick = () => { shotEl.src = src; shotName.textContent = name; };
+    thumbs.appendChild(t);
+  }
+
+  function setRunning(on) {
+    runBtn.disabled = on;
+    statusEl.textContent = on ? "running" : "idle";
+    statusEl.classList.toggle("live", on);
+  }
+
+  async function run() {
+    errEl.textContent = "";
+    logEl.innerHTML = ""; thumbs.innerHTML = ""; shotEl.removeAttribute("src"); shotName.textContent = "";
+    const body = {
+      mode: $("mode").value,
+      name: $("name").value || null,
+      description: $("desc").value || null,
+      submit: $("submit").checked,
+    };
+    setRunning(true);
+    let res;
+    try {
+      res = await fetch("/api/run", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    } catch (e) {
+      errEl.textContent = "Could not reach the server."; setRunning(false); return;
+    }
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      errEl.textContent = data.error || ("Run failed (" + res.status + ")");
+      setRunning(false);
+      return;
+    }
+    es = new EventSource("/api/events");
+    es.onmessage = (ev) => {
+      const msg = JSON.parse(ev.data);
+      if (msg.type === "log") addLog(msg.line);
+      else if (msg.type === "screenshot") showShot(msg.name, msg.b64);
+      else if (msg.type === "done") { setRunning(false); es.close(); es = null; }
+    };
+    es.onerror = () => { setRunning(false); if (es) { es.close(); es = null; } };
+  }
+
+  runBtn.addEventListener("click", run);
+</script>

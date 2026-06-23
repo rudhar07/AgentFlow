@@ -1,0 +1,22 @@
+# Keep the build context (and the public image) small and secret-free.
+.git/
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Local-only / generated
+.env
+logs/
+screenshots/
+
+# Docs not needed at runtime
+VIVA.md
+docs/
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
