@@ -65,7 +65,10 @@ class Config:
         self.gemini_api_key: str | None = (
             os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or None
         )
-        self.gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+        # Default to flash-lite: it has the largest free-tier daily quota and,
+        # with the agent's grounding + guards, reliably handles the form task.
+        # Override to gemini-2.5-flash for harder/open-ended tasks (lower quota).
+        self.gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
 
         # --- Output paths ----------------------------------------------------
         self.screenshot_dir: Path = Path(
