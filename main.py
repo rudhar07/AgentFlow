@@ -37,13 +37,19 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--mode",
-        choices=["deterministic", "llm"],
+        choices=["deterministic", "llm", "gemini"],
         default="deterministic",
-        help="Which agent brain to use.",
+        help="Which agent brain to use: deterministic (rule-based, no key), "
+        "llm (Claude vision), or gemini (Google Gemini vision).",
     )
     parser.add_argument("--url", help="Target URL (defaults to the shadcn forms page).")
     parser.add_argument("--name", help="Value to type into the Name/Title field.")
     parser.add_argument("--description", help="Value to type into the Description field.")
+    parser.add_argument(
+        "--task",
+        help="Free-form goal for the gemini agent (e.g. \"open youtube.com and "
+        "search for lofi beats\"). Overrides the default form-fill task.",
+    )
     parser.add_argument(
         "--headless", action="store_true", help="Run the browser without a visible window."
     )
@@ -85,11 +91,18 @@ def main(argv: list[str] | None = None) -> int:
             if not result.success:
                 log.error("Agent did not fill any field: %s", result.message)
                 exit_code = 1
-        else:
+        elif args.mode == "llm":
             from agent.llm import LLMAgent
 
-            agent = LLMAgent(tools, config)
-            agent.run(url, name_value, description_value, submit=args.submit)
+            LLMAgent(tools, config).run(
+                url, name_value, description_value, submit=args.submit
+            )
+        else:  # gemini
+            from agent.gemini import GeminiAgent
+
+            GeminiAgent(tools, config).run(
+                url, name_value, description_value, submit=args.submit, task=args.task
+            )
 
         if args.keep_open:
             try:

@@ -54,10 +54,18 @@ class Config:
         self.timeout_ms: int = int(os.getenv("AGENTFLOW_TIMEOUT_MS", "30000"))
         self.type_delay_ms: int = int(os.getenv("AGENTFLOW_TYPE_DELAY_MS", "30"))
 
-        # --- LLM-vision agent ------------------------------------------------
+        # --- LLM-vision agent (Claude) ---------------------------------------
         self.anthropic_api_key: str | None = os.getenv("ANTHROPIC_API_KEY") or None
         self.model: str = os.getenv("ANTHROPIC_MODEL", "claude-opus-4-8")
         self.max_steps: int = int(os.getenv("AGENTFLOW_MAX_STEPS", "20"))
+
+        # --- Gemini-vision agent (Google) ------------------------------------
+        # The SDK also reads GEMINI_API_KEY / GOOGLE_API_KEY directly; we read
+        # it here so the agent can fail fast with a clear message if it's unset.
+        self.gemini_api_key: str | None = (
+            os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or None
+        )
+        self.gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
         # --- Output paths ----------------------------------------------------
         self.screenshot_dir: Path = Path(

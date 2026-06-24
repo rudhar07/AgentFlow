@@ -5,6 +5,9 @@ playwright==1.49.1
 # but it is required for `--mode llm`.
 anthropic>=0.49.0
 
+# Optional Gemini-vision mode (Google). Required for `--mode gemini`.
+google-genai>=1.0.0
+
 # Loads configuration / API keys from a local .env file
 python-dotenv>=1.0.1
 
